@@ -1,6 +1,12 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+/*Esta variável acompanha o estado em que o programa está
+0 - Menu Inicial
+1 - Inspecionando Disciplina
+2 - Visualisando Optativas
+*/
+int Mode = 0;
 
 /*Uma struct pode ser interpretada como um conjunto de variáveis de diferentes tipos em um só lugar
 Aqui criamos uma struct chamada Disciplina para armazenar os dados de cada disciplina do banco de dados.*/
@@ -30,7 +36,7 @@ int States[100] = {0};
 1- Falta Pre Requisitos
 2- Proximo Semestre*/
 int Block[100] = {0};
-int Records = 1; //esta variável  global será utilizada para contar quantas disciplinas lemos na tabela bd.txt
+int Records = 0; //esta variável  global será utilizada para contar quantas disciplinas lemos na tabela bd.txt
 
 /*Função para mudar a cor e estilo dos textos do console usando o nome em ingles
 red - purple - green - yellow - cyan - blue
@@ -73,6 +79,7 @@ int LoadDatabase(){
     FILE *file; //variável local do tipo ponteiro para armazenar o arquivo bd.txt
     file = fopen("bd.txt","r"); //Abre o arquivo em modo de leitura
     if (file == NULL) { //Checando se o arquivo bd.txt foi encontrado
+        SetTextStyle("red",0);
         printf("Arquivo bd.txt não encontrado, encerrando aplicação!\n");
         return 1;
     }
@@ -95,7 +102,8 @@ int LoadDatabase(){
         
         if (read == 9) Records++; // se nove leituras : OK, se não: erro!
         else if (!feof(file)){
-            printf ("Arquivo em formato incorreto na linha %d.\n Read = %d\n", Records + 1, read); //Impressão de onde apresentou erro na tabela
+            SetTextStyle("red",0);
+            printf ("Arquivo em formato incorreto na linha %d.\n Sucesso ate o %dº valor...\n", Records + 1, read); //Impressão de onde apresentou erro na tabela
             printf ("%d,%s,%s,%s,%d,%d,%d,%s,%d\n", 
                         Disciplinas[Records].num,
                         Disciplinas[Records].name,
@@ -114,6 +122,7 @@ int LoadDatabase(){
 
         if (ferror(file)) //Se qualquer outro tipo de erro detectado com o arquivo
         {
+            SetTextStyle("red",0);
             printf("Erro ao ler arquivo.\n");
             return 1;
         }
@@ -121,53 +130,108 @@ int LoadDatabase(){
 
     fclose(file); //Fecha o arquivo pois não precisaremos mais dele
     SetTextStyle("green",0);
-    printf("Leitura de arquivo bem sucedida: %d linhas.\n", Records - 1);
+    printf("Leitura de arquivo bem sucedida: %d linhas.\n", Records);
     return 0;   
 }
 
+//Função que imprime a lista de disciplinas separada pro periodos
+int printMainList(){
+    
+    int p;
+    for (p = 1; p<10; p++)
+    {
+        SetTextStyle("blue",1);
+        printf("%d PERIODO:\n",p);
+        SetTextStyle("def",1);
+        printf("Cod     Nome                                                              CH   Status        Situacao\n");
+        char stateName[12];
+        char blockName[12];
+        SetTextStyle("def",0);
+        int i;
+        for (i = 0; i<Records; i++){
+                if (Disciplinas[i].semester != p) continue;
+                if (Disciplinas[1].type != 0) continue;
+                switch (States[i])
+                {
+                case 0:
+                    strcpy(stateName,"Nao cursada");
+                    break;
+                case 1:
+                    strcpy(stateName,"Cursando");
+                    break;
+                case 2:
+                    strcpy(stateName,"Aprovado");
+                    break;
+                }
+                switch (Block[i])
+                {
+                case 0:
+                    strcpy(blockName,"Liberada");
+                    break;
+                case 1:
+                    strcpy(blockName,"Bloqueada");
+                    break;
+                case 2:
+                    strcpy(blockName,"Prox Sem");
+                    break;
+                }
 
+                printf ("%-7s %-65s %-3d  %-13s %-s\n",Disciplinas[i].code, Disciplinas[i].name, Disciplinas[i].hours, stateName, blockName);
+        }
+        SetTextStyle("yellow", 0);
+        if (p == 7 || p == 8) printf("O fluxo recomenda 1 optativa neste periodo\n");
+        if (p == 9) printf("O fluxo recomenda 2 optativas neste periodo\n");
+        printf("\n");
+    }
+    SetTextStyle("blue",1);
+    printf("OPTATIVAS:\n");
+    int chOpt = 0;
+    for (int i = 0; i< Records; i++){
+        if (Disciplinas[i].type != 1) continue;
+        if (States[i] == 2) chOpt += Disciplinas[i].hours;
+    }
+    SetTextStyle("def", 0);
+    printf("Horas de optativas cursadas: %d/256\n",chOpt);
+}
 
-int PrintMainList(){
-    SetTextStyle("def",1);
-    printf("Num     Nome                                                              CH   Status        Situacao\n");
-    int i;
-    char stateName[12];
-    char blockName[12];
+int LoadMenu(){
+    Mode = 0;
+    printf("\n");
+    SetTextStyle("blue",1);
+    printf("Esta e a sua situacao academica no curso CC PPC 2017:");
+    printf("\n");
+    printMainList();
+    SetTextStyle("blue",1);
+    printf("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Visualizar Optativas\n S - Salvar Status ");
     SetTextStyle("def",0);
-    for (i = 1; i<=Records - 1; i++){
-        switch (States[i])
-        {
-        case 0:
-            strcpy(stateName,"Nao cursada");
-            break;
-        case 1:
-            strcpy(stateName,"Cursada");
-            break;
-        case 2:
-            strcpy(stateName,"Aprovado");
-            break;
-        }
-        switch (Block[i])
-        {
-        case 0:
-            strcpy(blockName,"Liberada");
-            break;
-        case 1:
-            strcpy(blockName,"Bloqueada");
-            break;
-        case 2:
-            strcpy(blockName,"Prox Sem");
-            break;
-        }
+    return 0;
+    
+}
 
-        printf ("%-2d      %-65s %-3d  %-13s %-s\n",Disciplinas[i].num, Disciplinas[i].name, Disciplinas[i].hours, stateName, blockName);
+int ChangeWholeSemesterStatus(int semester, int status){
+    if (semester <= 0 || semester > 9){
+        SetTextStyle("red", 0);
+        printf("Semestre deve ser um numero de 1 a 9");
+        return 1;
+    }
+    if (status < 0 || status > 2){
+        SetTextStyle("red", 0);
+        printf("Status deve ser um numero de 0 a 2");
+        return 1;
+    }
+    int i;
+    for (i = 0; i<Records;i++){
+        if (Disciplinas[i].semester != semester) continue;
+        States[i] = status;
     }
     return 0;
 }
-
 int main(){
-    system("cls");
+    system("cls"); //Limpa a tela
+    SetTextStyle("def",0); //reseta a fonte para o padrão
     if (LoadDatabase() == 1) return 1; //Chama a função de ler o arquivo bd.txt, se der erro sai da aplicação
-    PrintMainList();
+    int i;
+    ChangeWholeSemesterStatus(1,1);
+    LoadMenu();
     return 0;
 }
