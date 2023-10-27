@@ -88,37 +88,26 @@ int LoadDatabase(){
     int read = 0; //esta variável local será utilizada para contar quantas informações foram lidas corretamente em cada linha da tabela bd.txt
     //enquanto não chegar ao fim do arquivo bd.text, faça:
     do{
-        char tempPrerequisite[20]; //variavel utilizada para ler a coluna pre requisitos como string
-        read = fscanf(file,"%d,%65[^,],%3[^,],%19[^,],%d,%d,%d,%7[^,],%d\n",
+        read = fscanf(file,"%d,%65[^,],%3[^,],%d,%d,%d,%d,%d,%d,%d,%7[^,],%d\n",
                         &Disciplinas[Records].num,
                         Disciplinas[Records].name,
                         Disciplinas[Records].institute,
-                        tempPrerequisite,
+                        &Disciplinas[Records].prerequisite[0],
+                        &Disciplinas[Records].prerequisite[1],
+                        &Disciplinas[Records].prerequisite[2],
+                        &Disciplinas[Records].prerequisite[3],
                         &Disciplinas[Records].hours,
                         &Disciplinas[Records].nucleos,
                         &Disciplinas[Records].type,
                         Disciplinas[Records].code,
                         &Disciplinas[Records].semester);
         
-        if (read == 9) Records++; // se nove leituras : OK, se não: erro!
+        if (read == 12) Records++; // se doze leituras : OK, se não: erro!
         else if (!feof(file)){
             SetTextStyle("red",0);
             printf ("Arquivo em formato incorreto na linha %d.\n Sucesso ate o %dº valor...\n", Records + 1, read); //Impressão de onde apresentou erro na tabela
-            printf ("%d,%s,%s,%s,%d,%d,%d,%s,%d\n", 
-                        Disciplinas[Records].num,
-                        Disciplinas[Records].name,
-                        Disciplinas[Records].institute,
-                        tempPrerequisite,
-                        &Disciplinas[Records].hours,
-                        &Disciplinas[Records].nucleos,
-                        &Disciplinas[Records].type,
-                        Disciplinas[Records].code,
-                        &Disciplinas[Records].semester);;
             return 1;
         }
-
-         
-        //TO DO: transformar a string de pre requisitos (tempPrerequisite) em uma array de ints para salvar na variavel Disciplinas
 
         if (ferror(file)) //Se qualquer outro tipo de erro detectado com o arquivo
         {
@@ -226,12 +215,19 @@ int ChangeWholeSemesterStatus(int semester, int status){
     }
     return 0;
 }
+
+//Esta função verifica todos os pre requisitos das disciplinas pra determinar se está liberada para cursar ou não
+int UpdateBlockSituations(){
+
+}
+
 int main(){
     system("cls"); //Limpa a tela
     SetTextStyle("def",0); //reseta a fonte para o padrão
     if (LoadDatabase() == 1) return 1; //Chama a função de ler o arquivo bd.txt, se der erro sai da aplicação
     int i;
     ChangeWholeSemesterStatus(1,1);
+    UpdateBlockSituations();
     LoadMenu();
     return 0;
 }

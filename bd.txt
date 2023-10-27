@@ -1,63 +1,63 @@
-1,Algebra Linear,IME, ,64,0,0,IME0351,3
-2,Algoritmos e Estruturas de Dados 1,INF,26,64,0,0,INF0286,2
-3,Algoritmos e Estruturas de Dados 2,INF,2,64,0,0,INF0287,3
-4,Analise e Projeto de Algoritmos,INF,21-03,64,0,0,INF0013,5
-5,Arquitetura de Computadores,INF,21,64,0,0,INF0015,5
-6,Banco de Dados,INF,29,64,0,0,INF0022,6
-7,Calculo 1A,IME, ,96,0,0,IME0350,1
-8,Calculo 2A,IME,7,96,1,0,IME0080,2
-9,Calculo Numerico,IME,18,64,1,0,IME0065,5
-10,Circuitos Digitais,EMC,21,64,1,0,EMC0292,4
-11,Compiladores,INF,03-28,64,1,0,INF0337,9
-12,Computacao e Sociedade,INF, ,32,0,0,INF0283,1
-13,Computacao Grafica,INF,22,64,1,0,INF0338,8
-14,Computacao Paralela,INF,39,64,1,0,INF0345,9
-15,Eletronica para Computacao,EMC,20,96,1,0,EMC0152,5
-16,Engenharia de Requisitos,INF, ,64,1,0,INF0339,7
-17,Engenharia de Software,INF, ,64,0,0,INF0056,6
-18,Equacoes Diferenciais Ordinarias,IME,01-08,64,1,0,IME0108,4
-19,Fisica I,IF,7,64,1,0,IFI0203,2
-20,Fisica III,IF,19,64,1,0,IFI0325,3
-21,Fundamentos de Matematica para Computacao,INF, ,64,0,0,INF0285,1
-22,Geometria Analitica,IME, ,64,1,0,IME0345,2
-23,Inteligencia Artificial,INF,02-29-33,64,1,0,INF0342,8
-24,Interacao Humano-Computador,INF,02-33,64,0,0,INF0289,9
-25,Introducao a Computabilidade e a Complexidade Computacional,INF,04-28,64,1,0,INF0335,7
-26,Introducao a Programacao,INF, ,128,0,0,INF0284,1
-27,Linguagens e Paradigmas de Programacao,INF,26,64,0,0,INF0288,6
-28,Linguagens Formais e Automatos,INF,21,64,1,0,INF0333,6
-29,Logica Matematica,INF,21,64,0,0,INF0305,2
-30,Matematica Discreta,INF,21,64,1,0,INF0331,3
-31,Metodologia de Pesquisa em Computacao,INF, ,32,1,0,INF0330,3
-32,Pesquisa Operacional,INF,1,64,1,0,INF0313,4
-33,Probabilidade e Estatistica A,IME,7,64,0,0,IME0378,3
-34,Programacao Orientada a Objetos,INF,26,64,0,0,INF0164,4
-35,Projeto de Software,INF,17-34,64,0,0,INF0290,8
-36,Projeto Final de Curso 1,INF, ,64,1,0,INF0174,8
-37,Projeto Final de Curso 2,INF,36,64,1,0,INF0177,9
-38,Redes de Computadores 1,INF, ,64,1,0,INF0341,7
-39,Sistemas Distribuidos,INF,38,64,1,0,INF0344,8
-40,Sistemas Gerenciadores de Banco de Dados,INF,6,64,1,0,INF0340,7
-41,Sistemas Operacionais,INF,02-05,64,1,0,INF0336,6
-42,Software Basico,INF,2,64,1,0,INF0334,5
-43,Teoria dos Grafos,INF,30,64,1,0,INF0332,4
-44,Aprendizagem de Maquina e Mineracao de Dados,INF,23,64,1,1,INF0354,0
-45,Armazem de Dados,INF,40,64,1,1,INF0355,0
-46,Avaliacao de Desempenho de Sistemas Computacionais,INF,33,64,1,1,INF0356,0
-47,Banco de Dados Distribuidos,INF,40,64,1,1,INF0357,0
-48,Computacao Evolucionaria,INF, ,64,1,1,INF0358,0
-49,Computacao Movel e Ubiqua,INF,34-35,64,1,1,INF0328,0
-50,Computacao Verde,INF,38,64,1,1,INF0359,0
-51,Desenvolvimento de Sistemas para Web,INF,34,64,1,1,INF0322,0
-52,Desenvolvimento de Software Dirigido por Modelos,INF,02-34,64,1,1,INF0360,0
-53,Empreendedorismo Digital,INF, ,64,1,1,INF0327,0
-54,Engenharia de Sistemas,INF, ,64,1,1,INF0294,0
-55,Engenharia de Software Baseada em Busca,INF,17,64,1,1,INF0361,0
-56,Fundamentos da Programacao Logica e Funcional,INF,27-29,64,1,1,INF0362,0
-57,Integracao de Dados,INF,40,64,1,1,INF0363,0
-58,Introducao a Lingua Brasileira de Sinais,FL, ,64,1,1,FAL0214,0
-59,Introducao a Teoria das Provas,INF,29,64,1,1,INF0364,0
-60,Introducao a Teoria dos Tipos,INF,29,64,1,1,INF0365,0
-61,Jogos Digitais,INF,34,64,1,1,INF0366,0
-62,Meta-heuristicas,INF,2,64,1,1,INF0367,0
-63,Metodologia e Experimentacao em Engenharia de Software,INF, ,64,1,1,INF0368,0
+1,Algebra Linear,IME,0,0,0,0,64,0,0,IME0351,3
+2,Algoritmos e Estruturas de Dados 1,INF,26,0,0,0,64,0,0,INF0286,2
+3,Algoritmos e Estruturas de Dados 2,INF,2,0,0,0,64,0,0,INF0287,3
+4,Analise e Projeto de Algoritmos,INF,21,3,0,0,64,0,0,INF0013,5
+5,Arquitetura de Computadores,INF,21,0,0,0,64,0,0,INF0015,5
+6,Banco de Dados,INF,29,0,0,0,64,0,0,INF0022,6
+7,Calculo 1A,IME,0,0,0,0,96,0,0,IME0350,1
+8,Calculo 2A,IME,7,0,0,0,96,1,0,IME0080,2
+9,Calculo Numerico,IME,18,0,0,0,64,1,0,IME0065,5
+10,Circuitos Digitais,EMC,21,0,0,0,64,1,0,EMC0292,4
+11,Compiladores,INF,3,28,0,0,64,1,0,INF0337,9
+12,Computacao e Sociedade,INF,0,0,0,0,32,0,0,INF0283,1
+13,Computacao Grafica,INF,22,0,0,0,64,1,0,INF0338,8
+14,Computacao Paralela,INF,39,0,0,0,64,1,0,INF0345,9
+15,Eletronica para Computacao,EMC,20,0,0,0,96,1,0,EMC0152,5
+16,Engenharia de Requisitos,INF,0,0,0,0,64,1,0,INF0339,7
+17,Engenharia de Software,INF,0,0,0,0,64,0,0,INF0056,6
+18,Equacoes Diferenciais Ordinarias,IME,1,8,0,0,64,1,0,IME0108,4
+19,Fisica I,IF,7,0,0,0,64,1,0,IFI0203,2
+20,Fisica III,IF,19,0,0,0,64,1,0,IFI0325,3
+21,Fundamentos de Matematica para Computacao,INF,0,0,0,0,64,0,0,INF0285,1
+22,Geometria Analitica,IME,0,0,0,0,64,1,0,IME0345,2
+23,Inteligencia Artificial,INF,2,29,33,0,64,1,0,INF0342,8
+24,Interacao Humano-Computador,INF,2,33,0,0,64,0,0,INF0289,9
+25,Introducao a Computabilidade e a Complexidade Computacional,INF,4,28,0,0,64,1,0,INF0335,7
+26,Introducao a Programacao,INF,0,0,0,0,128,0,0,INF0284,1
+27,Linguagens e Paradigmas de Programacao,INF,26,0,0,0,64,0,0,INF0288,6
+28,Linguagens Formais e Automatos,INF,21,0,0,0,64,1,0,INF0333,6
+29,Logica Matematica,INF,21,0,0,0,64,0,0,INF0305,2
+30,Matematica Discreta,INF,21,0,0,0,64,1,0,INF0331,3
+31,Metodologia de Pesquisa em Computacao,INF,0,0,0,0,32,1,0,INF0330,3
+32,Pesquisa Operacional,INF,1,0,0,0,64,1,0,INF0313,4
+33,Probabilidade e Estatistica A,IME,7,0,0,0,64,0,0,IME0378,3
+34,Programacao Orientada a Objetos,INF,26,0,0,0,64,0,0,INF0164,4
+35,Projeto de Software,INF,17,34,0,0,64,0,0,INF0290,8
+36,Projeto Final de Curso 1,INF,0,0,0,0,64,1,0,INF0174,8
+37,Projeto Final de Curso 2,INF,36,0,0,0,64,1,0,INF0177,9
+38,Redes de Computadores 1,INF,0,0,0,0,64,1,0,INF0341,7
+39,Sistemas Distribuidos,INF,38,0,0,0,64,1,0,INF0344,8
+40,Sistemas Gerenciadores de Banco de Dados,INF,6,0,0,0,64,1,0,INF0340,7
+41,Sistemas Operacionais,INF,2,5,0,0,64,1,0,INF0336,6
+42,Software Basico,INF,2,0,0,0,64,1,0,INF0334,5
+43,Teoria dos Grafos,INF,30,0,0,0,64,1,0,INF0332,4
+44,Aprendizagem de Maquina e Mineracao de Dados,INF,23,0,0,0,64,1,1,INF0354,0
+45,Armazem de Dados,INF,40,0,0,0,64,1,1,INF0355,0
+46,Avaliacao de Desempenho de Sistemas Computacionais,INF,33,0,0,0,64,1,1,INF0356,0
+47,Banco de Dados Distribuidos,INF,40,0,0,0,64,1,1,INF0357,0
+48,Computacao Evolucionaria,INF,0,0,0,0,64,1,1,INF0358,0
+49,Computacao Movel e Ubiqua,INF,34,35,0,0,64,1,1,INF0328,0
+50,Computacao Verde,INF,38,0,0,0,64,1,1,INF0359,0
+51,Desenvolvimento de Sistemas para Web,INF,34,0,0,0,64,1,1,INF0322,0
+52,Desenvolvimento de Software Dirigido por Modelos,INF,2,34,0,0,64,1,1,INF0360,0
+53,Empreendedorismo Digital,INF,0,0,0,0,64,1,1,INF0327,0
+54,Engenharia de Sistemas,INF,0,0,0,0,64,1,1,INF0294,0
+55,Engenharia de Software Baseada em Busca,INF,17,0,0,0,64,1,1,INF0361,0
+56,Fundamentos da Programacao Logica e Funcional,INF,27,29,0,0,64,1,1,INF0362,0
+57,Integracao de Dados,INF,40,0,0,0,64,1,1,INF0363,0
+58,Introducao a Lingua Brasileira de Sinais,FL,0,0,0,0,64,1,1,FAL0214,0
+59,Introducao a Teoria das Provas,INF,29,0,0,0,64,1,1,INF0364,0
+60,Introducao a Teoria dos Tipos,INF,29,0,0,0,64,1,1,INF0365,0
+61,Jogos Digitais,INF,34,0,0,0,64,1,1,INF0366,0
+62,Meta-heuristicas,INF,2,0,0,0,64,1,1,INF0367,0
+63,Metodologia e Experimentacao em Engenharia de Software,INF,0,0,0,0,64,1,1,INF0368,0
