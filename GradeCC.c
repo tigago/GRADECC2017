@@ -72,6 +72,13 @@ void SetTextStyle(char color[], int style){
     
 }
 
+//Imprime um texto com um estilo e logo em seguida volta o estilo para default
+void PrintStringInStyle(char str[], char color[], int style){
+    SetTextStyle(color,style);
+    printf(str);
+    SetTextStyle("def", 0);
+}
+
 /*Esta função tenta ler o arquivo csv bd.txt, que tem que estar salvo na mesma pasta que o código está, e armazena os dados das disciplinas na variável global Disciplinas.
 Caso haja qualquer tipo de erro será retornado 1, caso tudo tenha ocorrido bem será retornado 0.*/
 int LoadDatabase(){
@@ -134,7 +141,7 @@ int printMainList(){
         SetTextStyle("def",1);
         printf("Cod     Nome                                                              CH   Status        Situacao\n");
         char stateName[12];
-        char blockName[12];
+        char blockName[25];
         SetTextStyle("def",0);
         int i;
         for (i = 0; i<Records; i++){
@@ -152,17 +159,21 @@ int printMainList(){
                     strcpy(stateName,"Aprovado");
                     break;
                 }
-                switch (Block[i])
-                {
-                case 0:
-                    strcpy(blockName,"Liberada");
-                    break;
-                case 1:
-                    strcpy(blockName,"Bloqueada");
-                    break;
-                case 2:
-                    strcpy(blockName,"Prox Sem");
-                    break;
+                if (States[i] == 2){
+                    strcpy(blockName,"-");
+                }else{
+                    switch (Block[i])
+                    {
+                    case 0:
+                        strcpy(blockName,"\033[0;32mLiberada\033[0m");
+                        break;
+                    case 1:
+                        strcpy(blockName,"Bloqueada");
+                        break;
+                    case 2:
+                        strcpy(blockName,"\033[0;33mProx Sem\033[0m");
+                        break;
+                    }
                 }
 
                 printf ("%-7s %-65s %-3d  %-13s %-s\n",Disciplinas[i].code, Disciplinas[i].name, Disciplinas[i].hours, stateName, blockName);
@@ -183,51 +194,130 @@ int printMainList(){
     printf("Horas de optativas cursadas: %d/256\n",chOpt);
 }
 
-int LoadMenu(){
-    Mode = 0;
-    printf("\n");
-    SetTextStyle("blue",1);
-    printf("Esta e a sua situacao academica no curso CC PPC 2017:");
-    printf("\n");
-    printMainList();
-    SetTextStyle("blue",1);
-    printf("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Visualizar Optativas\n S - Salvar Status ");
-    SetTextStyle("def",0);
-    return 0;
-    
-}
 
-int ChangeWholeSemesterStatus(int semester, int status){
-    if (semester <= 0 || semester > 9){
-        SetTextStyle("red", 0);
-        printf("Semestre deve ser um numero de 1 a 9");
-        return 1;
-    }
-    if (status < 0 || status > 2){
-        SetTextStyle("red", 0);
-        printf("Status deve ser um numero de 0 a 2");
-        return 1;
-    }
+void ChangeWholeSemesterStatus(int semester, int status){
     int i;
     for (i = 0; i<Records;i++){
         if (Disciplinas[i].semester != semester) continue;
         States[i] = status;
     }
-    return 0;
+}
+
+int CheckState(int prerequisteNumber){
+    if (prerequisteNumber == 0) return 2;
+    return States[prerequisteNumber - 1];
 }
 
 //Esta função verifica todos os pre requisitos das disciplinas pra determinar se está liberada para cursar ou não
 int UpdateBlockSituations(){
+    int i;
+    for (i = 0; i<Records;i++){
+        if (CheckState(Disciplinas[i].prerequisite[0]) == 2 && CheckState(Disciplinas[i].prerequisite[1]) == 2 && CheckState(Disciplinas[i].prerequisite[2]) == 2 && CheckState(Disciplinas[i].prerequisite[3]) == 2) Block[i] = 0;
+        else if ((CheckState(Disciplinas[i].prerequisite[0]) == 2 || CheckState(Disciplinas[i].prerequisite[0]) == 1) && 
+                    (CheckState(Disciplinas[i].prerequisite[1]) == 2 || CheckState(Disciplinas[i].prerequisite[1]) == 1) && 
+                    (CheckState(Disciplinas[i].prerequisite[2]) == 2 || CheckState(Disciplinas[i].prerequisite[2]) == 1) &&
+                    (CheckState(Disciplinas[i].prerequisite[3]) == 2 || CheckState(Disciplinas[i].prerequisite[3]) == 1)) Block[i] = 2;
+        else Block[i] = 1;
+    }
+    return 0;
+}
 
+//Comando de mudar status uma disciplina
+int CmdChangeSingleDiscipline(){
+    char code[8];
+    PrintStringInStyle("Codigo da disciplina a ser alterada: (X para cancelar)\n", "cyan", 0);
+    scanf("%s", code);
+    if (strcmp(code,"X") == 0 || strcmp(code,"x") == 0){
+        PrintStringInStyle("Operacao cancelada pelo usuario.\n", "yellow", 0);
+        return 1;
+    }
+    int i;
+    int found = -1;
+    for (i = 0; i<Records; i++){
+        if (strcmp(code,Disciplinas[i].code) == 0){
+            found = i;
+            break;
+        }
+    }
+    if (found == -1){
+        PrintStringInStyle("Codigo invalido, operacao cancelada.\n","red",0);
+        return 1;
+    }
+    int read;
+    SetTextStyle("cyan", 0);
+    printf("0 - Nao Cursada\n1 - Cursando\n2 - Aprovada\nNovo status para a disciplina %s:\n",Disciplinas[found].name);
+    SetTextStyle("def" , 0);
+    scanf("%d", &read);
+    if (read < 0 || read > 2){
+        PrintStringInStyle("Comando invalido, operacao cancelada.\n","red",0);
+        return 1;
+    }
+    States[found] = read;
+    printf("Debug 0\n");
+    return 0;
+}
+
+//Quando o usuario entra o comando para mudas as disciplinas de um semestre, é chamada esta função
+int CmdChangeWholeSemester(){
+    PrintStringInStyle("Entre o numero do semestre que deseja alterar:\n","cyan",0);
+    int sem = -1;
+    scanf("%d", &sem);
+    if (sem <= 0 || sem > 9){
+        PrintStringInStyle("Semestre invalido, operacao cancelada!\n", "red" , 0);
+        return 1;
+    }
+    int opt = -1;
+    SetTextStyle("cyan", 0);
+    printf("0 - Nao Cursada\n1 - Cursando\n2 - Aprovada\nNovo status para o %d semestre:",sem);
+    SetTextStyle("def" , 0);
+    scanf("%d", &opt);
+    if (opt < 0 || opt > 2){
+        PrintStringInStyle("Opcao invalida, operacao cancelada!\n", "red" , 0);
+        return 1;
+    }
+    ChangeWholeSemesterStatus(sem, opt);
+    printf("Debug 0\n");
+    return 0;
+}
+//Imprime o menu principal com a tabela principal e dá as opções
+int EnterMainMenu(int printMessage){
+    Mode = 0;
+    UpdateBlockSituations();
+    printf("\n");
+    PrintStringInStyle("Esta e a sua situacao academica no curso CC PPC 2017:\n", "blue" , 1);
+    printf("\n");
+    printMainList();
+    PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Visualizar Optativas\n S - Salvar Status\n C - Carregar Status\n X - Finalizar Programa\n","cyan", 0);
+    if (printMessage) PrintStringInStyle("\nAlteracoes feitas com sucesso\n", "green", 0);
+    while (1){ //Loop infinito que dura enquanto o usuario não entrar um comando válido
+        char cmd;
+        printf("Insira o seu comando: ");
+        scanf(" %c", &cmd);
+        if (cmd == 'M' || cmd == 'm'){
+            if (CmdChangeSingleDiscipline() == 0) break;;
+        } else if (cmd == 'p' || cmd == 'P'){
+            if (CmdChangeWholeSemester() == 0) break;
+        }else if (cmd == 'X' || cmd == 'x'){
+            return 1;
+        }else{
+            PrintStringInStyle("Comando nao reconhecido, tente novamente:\n", "red", 0);
+        }
+    }
+    system("cls"); //Limpa a tela
+    return 0;
 }
 
 int main(){
     system("cls"); //Limpa a tela
     SetTextStyle("def",0); //reseta a fonte para o padrão
     if (LoadDatabase() == 1) return 1; //Chama a função de ler o arquivo bd.txt, se der erro sai da aplicação
-    int i;
+    int i = 0;
     ChangeWholeSemesterStatus(1,1);
-    UpdateBlockSituations();
-    LoadMenu();
+    int includeMessage = 0; //utilizada para incluir ou nao a mensagem de alterações feitas ao fim do menu
+    while (i == 0){
+        i = EnterMainMenu(includeMessage);
+        includeMessage = 1;
+    }
+    PrintStringInStyle("Finalizando Programa...", "yellow" , 0);
     return 0;
 }
