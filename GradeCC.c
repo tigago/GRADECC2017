@@ -1,12 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-/*Esta variável acompanha o estado em que o programa está
-0 - Menu Inicial
-1 - Inspecionando Disciplina
-2 - Visualisando Optativas
-*/
-int Mode = 0;
 
 int IncludeMessage = 0; //utilizada para incluir ou nao a mensagem de alterações feitas ao fim do menu
 int IncludeOpt = 0; //utilizada para incluir ou nao as disciplinas optativas na lista principal
@@ -343,9 +337,77 @@ int CmdInspectdiscipline(){
     return 0;
 }
 
+int CmdSaveProfile(){
+    PrintStringInStyle("Max 15 characteres\nAo salvar com o nome de um perfil existente, este sera substituido\n", "yellow", 0);
+    PrintStringInStyle("Salvar perfil com o nome:\n","cyan",0);
+    char name[20];
+    scanf("%15s",name);
+    SetTextStyle("cyan",0);
+    printf("Tem certeza que quer salvar o perfil como %s.perfil na pasta do programa? Arquivos de nomes iguais serao susbtituidos!\n0-SIM\n1-NAO\n",name);
+    SetTextStyle("def",0);
+    int opt;
+    scanf("%d",&opt);
+    if (opt < 0 || opt > 1){
+        PrintStringInStyle("Opcao Invalida, operacao cancelada\n","red",0);
+        return 1;
+    }
+    if (opt == 1){
+        PrintStringInStyle("Operacao cancelada pelo usuario.\n","yellow",0);
+        return 1;
+    }
+    FILE *file;
+    file = fopen(strcat(name,".perfil"),"w"); //Abre ou cria um arquivo em modo de escrita
+    if (file == NULL){
+        PrintStringInStyle("Erro ao abrir ou criar arquivo de perfil, operacao cancelada.\n","red",0);
+        return 1;
+    }
+    int i;
+    for (i = 0; i<Records;i++){
+        if (States[i] == 0) fputs("0\n",file);
+        else if (States[i] == 1) fputs("1\n",file);
+        else fputs("2\n",file);
+    }
+    fclose(file);
+    IncludeMessage = 1;
+    return 0;
+}
+
+int CmdLoadProfile(){
+    PrintStringInStyle("Nao inclua o sufixo .perfil\n", "yellow", 0);
+    PrintStringInStyle("Nome do perfil a ser carregado:\n","cyan",0);
+    char name[20];
+    scanf("%15s",name);
+    FILE *file;
+    file = fopen(strcat(name,".perfil"),"r"); //Abre ou cria um arquivo em modo de leitura
+    if (file == NULL){
+        PrintStringInStyle("Nao foi encontrado um perfil com este nome, operacao cancelada.\n","red",0);
+        return 1;
+    }
+
+    int i=0;
+    do{ 
+        fscanf(file,"%d\n",&States[i]);
+        printf("%d\n",States[i]);
+        i++;
+        if (ferror(file)) //Se qualquer outro tipo de erro detectado com o arquivo
+        {
+            SetTextStyle("red",0);
+            printf("Erro desconhecido ao ler arquivo.\n");
+            return 2;
+        }
+     } while (!feof(file));
+    if (i != Records){
+        PrintStringInStyle("Numero de informacoes no arquivo e incompativel!\n","red", 0);
+        return 2;
+    }
+    fclose(file);
+    UpdateBlockSituations();
+    IncludeMessage = 1;
+    return 0;
+}
+
 //Imprime o menu principal com a tabela principal e dá as opções
 int EnterMainMenu(){
-    Mode = 0;
     printf("\n");
     PrintStringInStyle("Esta e a sua situacao academica no curso CC PPC 2017:\n", "blue" , 1);
     printf("\n");
@@ -367,6 +429,12 @@ int EnterMainMenu(){
         }else if (cmd == 'o' || cmd == 'O'){
             IncludeMessage = 0;
             break;
+        }else if (cmd == 's' || cmd == 'S'){
+            if (CmdSaveProfile() == 0) break;
+        }else if (cmd == 'c' || cmd == 'C'){
+            int a = CmdLoadProfile();
+            if (a == 0) break;
+            else if (a == 2) return 1;
         }else if (cmd == 'X' || cmd == 'x'){
             return 1;
         }else{
@@ -384,10 +452,10 @@ int main(){
     SetTextStyle("def",0); //reseta a fonte para o padrão
     if (LoadDatabase() == 1) return 1; //Chama a função de ler o arquivo bd.txt, se der erro sai da aplicação
     int i = 0;
-    ChangeWholeSemesterStatus(1,1);
-    UpdateBlockSituations();
+    ChangeWholeSemesterStatus(1,1); //muda todas as disciplinas do primeiro periodo para cursando, o que é o padrão antes de carregar um perfil
+    UpdateBlockSituations();//Atualiza a situação das materias bloqueadas ou liberadas antes de entrar no menu
     while (i == 0){
-        i = EnterMainMenu();
+        i = EnterMainMenu(); //enquanto o menu retornar 0, entraremos no menu novamente
     }
     PrintStringInStyle("Finalizando Programa...", "yellow" , 0);
     return 0;
