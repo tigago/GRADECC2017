@@ -9,6 +9,7 @@
 int Mode = 0;
 
 int IncludeMessage = 0; //utilizada para incluir ou nao a mensagem de alterações feitas ao fim do menu
+int IncludeOpt = 0; //utilizada para incluir ou nao as disciplinas optativas na lista principal
 
 /*Uma struct pode ser interpretada como um conjunto de variáveis de diferentes tipos em um só lugar
 Aqui criamos uma struct chamada Disciplina para armazenar os dados de cada disciplina do banco de dados.*/
@@ -196,13 +197,15 @@ int printMainList(){
     }
     SetTextStyle("blue",1);
     printf("OPTATIVAS:\n");
+    if (IncludeOpt)  PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
     int chOpt = 0;
     for (int i = 0; i< Records; i++){
         if (Disciplinas[i].type != 1) continue;
+        if (IncludeOpt) PrintTableLineForDiscipline(i);
         if (States[i] == 2) chOpt += Disciplinas[i].hours;
     }
     SetTextStyle("def", 0);
-    printf("Horas de optativas cursadas: %d/256\n",chOpt);
+    printf("\nHoras de optativas cursadas: %d/256\n",chOpt);
 }
 
 
@@ -341,16 +344,18 @@ int CmdInspectdiscipline(){
 }
 
 //Imprime o menu principal com a tabela principal e dá as opções
-int EnterMainMenu(int printMessage){
+int EnterMainMenu(){
     Mode = 0;
     printf("\n");
     PrintStringInStyle("Esta e a sua situacao academica no curso CC PPC 2017:\n", "blue" , 1);
     printf("\n");
     printMainList();
-    PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Visualizar Optativas\n S - Salvar Perfil\n C - Carregar Perfil\n X - Finalizar Programa\n","cyan", 0);
-    if (printMessage) PrintStringInStyle("\nAlteracoes feitas com sucesso\n", "green", 0);
+    if (IncludeOpt == 0) PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Visualizar Optativas\n S - Salvar Perfil\n C - Carregar Perfil\n X - Finalizar Programa\n","cyan", 0);
+    else PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Esconder Optativas\n S - Salvar Perfil\n C - Carregar Perfil\n X - Finalizar Programa\n","cyan", 0);
+        
+    if (IncludeMessage) PrintStringInStyle("\nAlteracoes feitas com sucesso\n", "green", 0);
+    char cmd;
     while (1){ //Loop infinito que dura enquanto o usuario não entrar um comando válido
-        char cmd;
         printf("Opcao: ");
         scanf(" %c", &cmd);
         if (cmd == 'M' || cmd == 'm'){
@@ -359,12 +364,17 @@ int EnterMainMenu(int printMessage){
             if (CmdChangeWholeSemester() == 0) break;
         }else if (cmd == 'i' || cmd == 'I'){
             if (CmdInspectdiscipline() == 0) break;
+        }else if (cmd == 'o' || cmd == 'O'){
+            IncludeMessage = 0;
+            break;
         }else if (cmd == 'X' || cmd == 'x'){
             return 1;
         }else{
             PrintStringInStyle("Comando nao reconhecido, tente novamente:\n", "red", 0);
         }
     }
+    if ((cmd == 'O' || cmd == 'o') && IncludeOpt == 0) IncludeOpt = 1;
+    else IncludeOpt = 0;
     system("cls"); //Limpa a tela
     return 0;
 }
@@ -377,7 +387,7 @@ int main(){
     ChangeWholeSemesterStatus(1,1);
     UpdateBlockSituations();
     while (i == 0){
-        i = EnterMainMenu(IncludeMessage);
+        i = EnterMainMenu();
     }
     PrintStringInStyle("Finalizando Programa...", "yellow" , 0);
     return 0;
