@@ -8,6 +8,8 @@
 */
 int Mode = 0;
 
+int IncludeMessage = 0; //utilizada para incluir ou nao a mensagem de alterações feitas ao fim do menu
+
 /*Uma struct pode ser interpretada como um conjunto de variáveis de diferentes tipos em um só lugar
 Aqui criamos uma struct chamada Disciplina para armazenar os dados de cada disciplina do banco de dados.*/
 typedef struct 
@@ -130,7 +132,45 @@ int LoadDatabase(){
     return 0;   
 }
 
-//Função que imprime a lista de disciplinas separada pro periodos
+//Esta funcao imprime as informacoes de uma disciplina de forma conforme à tabela
+void PrintTableLineForDiscipline(int disciplineIndex){
+    char stateName[12];
+        char blockName[25];
+        switch (States[disciplineIndex])
+        {
+        case 0:
+            strcpy(stateName,"Nao cursada");
+            break;
+        case 1:
+            strcpy(stateName,"Cursando");
+            break;
+        case 2:
+            strcpy(stateName,"Aprovado");
+            break;
+        }
+        if (States[disciplineIndex] == 2){
+            strcpy(blockName,"-");
+        }else{
+            switch (Block[disciplineIndex])
+            {
+            case 0:
+                strcpy(blockName,"\033[0;32mLiberada\033[0m");
+                break;
+            case 1:
+                strcpy(blockName,"Bloqueada");
+                break;
+            case 2:
+                strcpy(blockName,"\033[0;33mProx Sem\033[0m");
+                break;
+            }
+        }
+        SetTextStyle("def",0);
+        printf ("%-7s %-65s %-3d  %-13s %-s",Disciplinas[disciplineIndex].code, Disciplinas[disciplineIndex].name, Disciplinas[disciplineIndex].hours, stateName, blockName);
+        if (Disciplinas[disciplineIndex].type == 1) printf(" OPT");
+        printf("\n");
+}
+
+//Função que imprime a lista de disciplinas separada por periodos
 int printMainList(){
     
     int p;
@@ -147,36 +187,7 @@ int printMainList(){
         for (i = 0; i<Records; i++){
                 if (Disciplinas[i].semester != p) continue;
                 if (Disciplinas[1].type != 0) continue;
-                switch (States[i])
-                {
-                case 0:
-                    strcpy(stateName,"Nao cursada");
-                    break;
-                case 1:
-                    strcpy(stateName,"Cursando");
-                    break;
-                case 2:
-                    strcpy(stateName,"Aprovado");
-                    break;
-                }
-                if (States[i] == 2){
-                    strcpy(blockName,"-");
-                }else{
-                    switch (Block[i])
-                    {
-                    case 0:
-                        strcpy(blockName,"\033[0;32mLiberada\033[0m");
-                        break;
-                    case 1:
-                        strcpy(blockName,"Bloqueada");
-                        break;
-                    case 2:
-                        strcpy(blockName,"\033[0;33mProx Sem\033[0m");
-                        break;
-                    }
-                }
-
-                printf ("%-7s %-65s %-3d  %-13s %-s\n",Disciplinas[i].code, Disciplinas[i].name, Disciplinas[i].hours, stateName, blockName);
+                PrintTableLineForDiscipline(i);
         }
         SetTextStyle("yellow", 0);
         if (p == 7 || p == 8) printf("O fluxo recomenda 1 optativa neste periodo\n");
@@ -227,14 +238,14 @@ int CmdChangeSingleDiscipline(){
     char code[8];
     PrintStringInStyle("Codigo da disciplina a ser alterada: (X para cancelar)\n", "cyan", 0);
     scanf("%s", code);
-    if (strcmp(code,"X") == 0 || strcmp(code,"x") == 0){
+    if (strcmpi(code,"X") == 0){
         PrintStringInStyle("Operacao cancelada pelo usuario.\n", "yellow", 0);
         return 1;
     }
     int i;
     int found = -1;
     for (i = 0; i<Records; i++){
-        if (strcmp(code,Disciplinas[i].code) == 0){
+        if (strcmpi(code,Disciplinas[i].code) == 0){
             found = i;
             break;
         }
@@ -253,7 +264,8 @@ int CmdChangeSingleDiscipline(){
         return 1;
     }
     States[found] = read;
-    printf("Debug 0\n");
+    IncludeMessage = 1;
+    UpdateBlockSituations();
     return 0;
 }
 
@@ -276,27 +288,77 @@ int CmdChangeWholeSemester(){
         return 1;
     }
     ChangeWholeSemesterStatus(sem, opt);
-    printf("Debug 0\n");
+    UpdateBlockSituations();
+    IncludeMessage = 1;
     return 0;
 }
+
+int CmdInspectdiscipline(){
+    char code[8];
+    PrintStringInStyle("Codigo da disciplina a ser isnpecionada: (X para cancelar)\n", "cyan", 0);
+    scanf("%s", code);
+    if (strcmpi(code,"X") == 0){
+        PrintStringInStyle("Operacao cancelada pelo usuario.\n", "yellow", 0);
+        return 1;
+    }
+    int i;
+    int found = -1;
+    for (i = 0; i<Records; i++){
+        if (strcmpi(code,Disciplinas[i].code) == 0){
+            found = i;
+            break;
+        }
+    }
+    if (found == -1){
+        PrintStringInStyle("Codigo invalido, operacao cancelada.\n","red",0);
+        return 1;
+    }
+    system("cls"); //Limpa a tela
+    PrintStringInStyle("Detalhes da disciplina:\n", "blue", 1);
+    PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+    PrintTableLineForDiscipline(found);
+    PrintStringInStyle("\nPre-requisitos desta disciplina:\n", "blue", 1);
+    PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+    for (i = 0; i<4; i++){
+        if (Disciplinas[found].prerequisite[i] == 0) continue;
+        PrintTableLineForDiscipline(Disciplinas[found].prerequisite[i] - 1);
+    }
+    PrintStringInStyle("\nEsta disciplina e pre-requisito para:\n", "blue", 1);
+    PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+    for (i = 0; i<Records; i++){
+        if(found == Disciplinas[i].prerequisite[0] - 1
+            || found == Disciplinas[i].prerequisite[1] - 1
+            || found == Disciplinas[i].prerequisite[2] - 1
+            || found == Disciplinas[i].prerequisite[3] - 1){
+                PrintTableLineForDiscipline(i);
+            }
+    }
+    char opt;
+    PrintStringInStyle("\nEntre qualquer valor para voltar ao menu: ", "cyan" , 0);
+    scanf(" %c", &opt);
+    IncludeMessage = 0;
+    return 0;
+}
+
 //Imprime o menu principal com a tabela principal e dá as opções
 int EnterMainMenu(int printMessage){
     Mode = 0;
-    UpdateBlockSituations();
     printf("\n");
     PrintStringInStyle("Esta e a sua situacao academica no curso CC PPC 2017:\n", "blue" , 1);
     printf("\n");
     printMainList();
-    PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Visualizar Optativas\n S - Salvar Status\n C - Carregar Status\n X - Finalizar Programa\n","cyan", 0);
+    PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Visualizar Optativas\n S - Salvar Perfil\n C - Carregar Perfil\n X - Finalizar Programa\n","cyan", 0);
     if (printMessage) PrintStringInStyle("\nAlteracoes feitas com sucesso\n", "green", 0);
     while (1){ //Loop infinito que dura enquanto o usuario não entrar um comando válido
         char cmd;
-        printf("Insira o seu comando: ");
+        printf("Opcao: ");
         scanf(" %c", &cmd);
         if (cmd == 'M' || cmd == 'm'){
             if (CmdChangeSingleDiscipline() == 0) break;;
         } else if (cmd == 'p' || cmd == 'P'){
             if (CmdChangeWholeSemester() == 0) break;
+        }else if (cmd == 'i' || cmd == 'I'){
+            if (CmdInspectdiscipline() == 0) break;
         }else if (cmd == 'X' || cmd == 'x'){
             return 1;
         }else{
@@ -313,10 +375,9 @@ int main(){
     if (LoadDatabase() == 1) return 1; //Chama a função de ler o arquivo bd.txt, se der erro sai da aplicação
     int i = 0;
     ChangeWholeSemesterStatus(1,1);
-    int includeMessage = 0; //utilizada para incluir ou nao a mensagem de alterações feitas ao fim do menu
+    UpdateBlockSituations();
     while (i == 0){
-        i = EnterMainMenu(includeMessage);
-        includeMessage = 1;
+        i = EnterMainMenu(IncludeMessage);
     }
     PrintStringInStyle("Finalizando Programa...", "yellow" , 0);
     return 0;
