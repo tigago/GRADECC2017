@@ -61,3 +61,17 @@
 61,Jogos Digitais,INF,34,0,0,0,64,1,1,INF0366,0
 62,Meta-heuristicas,INF,2,0,0,0,64,1,1,INF0367,0
 63,Metodologia e Experimentacao em Engenharia de Software,INF,0,0,0,0,64,1,1,INF0368,0
+64,Microcontroladores,INF,10,26,0,0,64,1,1,INF0369,0
+65,Processamento Digital de Imagens,INF,1,26,0,0,64,1,1,INF0370,0
+66,Recuperacao de Informacao,INF,2,33,0,0,64,1,1,INF0371,0
+67,Redes de Computadores 2,INF,38,0,0,0,64,1,1,INF0343,0
+68,Redes Neuronais Artificiais,INF,23,0,0,0,64,1,1,INF0372,0
+69,Seguranca e Auditoria de Sistemas,INF,38,0,0,0,64,1,1,INF0321,0
+70,Sistemas Multiagentes,INF,34,0,0,0,64,1,1,INF0373,0
+71,Topicos Avancados em Redes Sem Fio,INF,0,0,0,0,64,1,1,INF0374,0
+72,Topicos em Computacao,INF,0,0,0,0,64,1,1,INF0375,0
+73,Topicos em Teste de Software,INF,0,0,0,0,64,1,1,INF0376,0
+74,Verificacao Formal de Programas,INF,29,0,0,0,64,1,1,INF0377,0
+75,Visao Robotica,INF,1,65,0,0,64,1,1,INF0378,0
+76,Visualizacao de Informacoes,INF,3,0,0,0,64,1,1,INF0379,0
+77,Web Semantica,INF,34,0,0,0,64,1,1,INF0380,0
