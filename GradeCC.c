@@ -314,21 +314,68 @@ int CmdInspectdiscipline(){
     PrintStringInStyle("Detalhes da disciplina:\n", "blue", 1);
     PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
     PrintTableLineForDiscipline(found);
-    PrintStringInStyle("\nPre-requisitos desta disciplina:\n", "blue", 1);
-    PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
-    for (i = 0; i<4; i++){
-        if (Disciplinas[found].prerequisite[i] == 0) continue;
-        PrintTableLineForDiscipline(Disciplinas[found].prerequisite[i] - 1);
+    if (Disciplinas[found].prerequisite[0] != 0)
+    {
+        PrintStringInStyle("\nPre-requisitos diretos desta disciplina:\n", "blue", 1);
+        PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+        for (i = 0; i<4; i++){
+            if (Disciplinas[found].prerequisite[i] == 0) continue;
+            PrintTableLineForDiscipline(Disciplinas[found].prerequisite[i] - 1);
+        }
     }
-    PrintStringInStyle("\nEsta disciplina e pre-requisito para:\n", "blue", 1);
-    PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+    int header = 0;
     for (i = 0; i<Records; i++){
         if(found == Disciplinas[i].prerequisite[0] - 1
             || found == Disciplinas[i].prerequisite[1] - 1
             || found == Disciplinas[i].prerequisite[2] - 1
             || found == Disciplinas[i].prerequisite[3] - 1){
+                if (header == 0){
+                    header = 1;
+                    PrintStringInStyle("\nEsta disciplina e pre-requisito para:\n", "blue", 1);
+                    PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+                }
                 PrintTableLineForDiscipline(i);
             }
+    }
+    int path[100] = {-1,-1};
+    path[0] = found;
+    int searchLen = 1;
+    int lastSearchIndex = 0;
+    while(searchLen > 0){
+        int count = 0;
+        //printf("\nDebug: checando de %d ate %d:\n", lastSearchIndex, lastSearchIndex + searchLen - 1);
+        for (i = lastSearchIndex; i < lastSearchIndex + searchLen; i++){
+            int j;
+            //printf("\nDebug: procurando em: %s\n", Disciplinas[path[i]].name);
+            for (j = 0; j < 4; j++){
+                if (Disciplinas[path[i]].prerequisite[j] != 0){
+                    int num = Disciplinas[path[i]].prerequisite[j] - 1;
+                    int k;
+                    int check = 0; //checar se o prerequisito ja foi adicionado ao caminho
+                    for (k = 0; k < lastSearchIndex + count; k ++){
+                        if (path[k] == num) {
+                            check = 1;
+                            //printf("\nDebug: achou repetido: %s\n", Disciplinas[num].name);
+                            break;
+                        }
+                    }
+                    if (check) continue; //se pre requisito ja esta no caminho va para o proximo j
+                    count++;
+                    path[lastSearchIndex + count + searchLen - 1] = num;
+                    //printf("\nDebug: adicionando: %s no index %d\n", Disciplinas[num].name, lastSearchIndex + count + searchLen - 1);
+                }
+            }
+        }
+        lastSearchIndex += searchLen;
+        searchLen = count;
+    }
+    
+    if (path[1] != -1){
+        PrintStringInStyle("\nTodas as disciplinas que voce precisa passar ate chegar a esta:\n", "yellow", 1);
+        PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+    }
+    for (i = 1; i < lastSearchIndex; i ++){
+        PrintTableLineForDiscipline(path[i]);
     }
     char opt;
     PrintStringInStyle("\nEntre qualquer valor para voltar ao menu: ", "cyan" , 0);
@@ -336,6 +383,8 @@ int CmdInspectdiscipline(){
     IncludeMessage = 0;
     return 0;
 }
+
+
 
 int CmdSaveProfile(){
     PrintStringInStyle("Max 15 characteres\nAo salvar com o nome de um perfil existente, este sera substituido\n", "yellow", 0);
