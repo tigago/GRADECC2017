@@ -435,7 +435,7 @@ int CmdInspectdiscipline(){
                 || compromised[i] == Disciplinas[j].prerequisite[3] - 1){
                     int k;
                     int check = 0; //checar se o comprometido ja foi adicionado ao caminho
-                    for (k = 0; k < lastSearchIndex + count; k ++){
+                    for (k = 0; k < lastSearchIndex + count + searchLen; k ++){
                         if (compromised[k] == j) {
                             check = 1;
                             break;
