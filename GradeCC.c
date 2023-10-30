@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<ctype.h>
 #include<string.h>
 
 int IncludeMessage = 0; //utilizada para incluir ou nao a mensagem de alterações feitas ao fim do menu
@@ -34,6 +35,18 @@ int States[100] = {0};
 2- Proximo Semestre*/
 int Block[100] = {0};
 int Records = 0; //esta variável  global será utilizada para contar quantas disciplinas lemos na tabela bd.txt
+
+//Esta funcao compara duas strings sem se preocupar com maiusculas e minusculas
+int stricmp(const char str1[], const char str2[]) {
+    int i = 0;
+    while (str1[i] && str2[i]) {
+        if (tolower((unsigned char)str1[i]) != tolower((unsigned char)str2[i])) {
+            return 0;
+        }
+        i++;
+    }
+    return 1;
+}
 
 /*Função para mudar a cor e estilo dos textos do console usando o nome em ingles
 red - purple - green - yellow - cyan - blue
@@ -72,7 +85,7 @@ void SetTextStyle(char color[], int style){
 //Imprime um texto com um estilo e logo em seguida volta o estilo para default
 void PrintStringInStyle(char str[], char color[], int style){
     SetTextStyle(color,style);
-    printf(str);
+    printf("%s", str);
     SetTextStyle("def", 0);
 }
 
@@ -235,14 +248,14 @@ int CmdChangeSingleDiscipline(){
     char code[8];
     PrintStringInStyle("Codigo da disciplina a ser alterada: (X para cancelar)\n", "cyan", 0);
     scanf("%s", code);
-    if (strcmpi(code,"X") == 0){
+    if (stricmp(code,"X")){
         PrintStringInStyle("Operacao cancelada pelo usuario.\n", "yellow", 0);
         return 1;
     }
     int i;
     int found = -1;
     for (i = 0; i<Records; i++){
-        if (strcmpi(code,Disciplinas[i].code) == 0){
+        if (stricmp(code,Disciplinas[i].code)){
             found = i;
             break;
         }
@@ -294,14 +307,14 @@ int CmdInspectdiscipline(){
     char code[8];
     PrintStringInStyle("Codigo da disciplina a ser isnpecionada: (X para cancelar)\n", "cyan", 0);
     scanf("%s", code);
-    if (strcmpi(code,"X") == 0){
+    if (stricmp(code,"X")){
         PrintStringInStyle("Operacao cancelada pelo usuario.\n", "yellow", 0);
         return 1;
     }
     int i;
     int found = -1;
     for (i = 0; i<Records; i++){
-        if (strcmpi(code,Disciplinas[i].code) == 0){
+        if (stricmp(code,Disciplinas[i].code)){
             found = i;
             break;
         }
