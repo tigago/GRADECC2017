@@ -39,6 +39,7 @@ int Records = 0; //esta variável  global será utilizada para contar quantas di
 //Esta funcao compara duas strings sem se preocupar com maiusculas e minusculas
 int stricmp(const char str1[], const char str2[]) {
     int i = 0;
+    if (strlen(str1) != strlen(str2)) return 0;
     while (str1[i] && str2[i]) {
         if (tolower((unsigned char)str1[i]) != tolower((unsigned char)str2[i])) {
             return 0;
@@ -46,6 +47,15 @@ int stricmp(const char str1[], const char str2[]) {
         i++;
     }
     return 1;
+}
+
+
+void ClearScreen(){
+	#ifdef _WIN32 // Includes both 32 bit and 64 bit
+        system("cls");
+	#else
+	    system("clear");
+	#endif
 }
 
 /*Função para mudar a cor e estilo dos textos do console usando o nome em ingles
@@ -323,7 +333,7 @@ int CmdInspectdiscipline(){
         PrintStringInStyle("Codigo invalido, operacao cancelada.\n","red",0);
         return 1;
     }
-    system("cls"); //Limpa a tela
+    ClearScreen(); //Limpa a tela
     PrintStringInStyle("Detalhes da disciplina:\n", "blue", 1);
     PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
     PrintTableLineForDiscipline(found);
@@ -468,14 +478,32 @@ int CmdLoadProfile(){
     return 0;
 }
 
+//Função que da informacoes sobre o projeto
+int CmdAbout(){
+    ClearScreen();
+    PrintStringInStyle("Auxiliar de fluxo Ciencia da Computacao PPC 2017 v1.0:\n","blue",1);
+    printf("Este programa tem como objetivo auxiliar alunos que estão com a grade baguncada, seja por motivos de reprovacao ou aproveitamento de disciplina.\n");
+    printf("Quando o aluno altera o status das disciplinas de acordo com a sua situacao, o programa ressalta quais disciplinas ja estao liberadas e quais disciplinas estarao disponiveis no proximo semestre caso haja aprovacao em todas as diciplinas que estao sendo cursadas.\n");
+    printf("O usuario pode salvar as informacoes dos status das disciplinas em um perfil para utilizar novamente quando o programa for aberto uma outra vez.\n");
+    printf("As alteracoes nao sao salvas automaticamente, possibilitando a simulacao de varios cenarios pelo usuario sem comprometer os seus dados salvos\n");
+    PrintStringInStyle("\nProjeto desenvolvido para a aula de IP 2023/2 ministrada pelo professor Hebert.\n","yellow",1);
+    PrintStringInStyle("GRUPO 7:\n", "def", 1);
+    printf("Hawryson Do Nascimento Mesquita\nIgor Gabriel Mario de Oliveira Martins\nLorena Ganzer\nThiago Nascimento Nogueira\n");
+    char opt;
+    PrintStringInStyle("\nEntre qualquer valor para voltar ao menu: ", "cyan" , 0);
+    scanf(" %c", &opt);
+    IncludeMessage = 0;
+    return 0;
+}
+
 //Imprime o menu principal com a tabela principal e dá as opções
 int EnterMainMenu(){
     printf("\n");
     PrintStringInStyle("Esta e a sua situacao academica no curso CC PPC 2017:\n", "blue" , 1);
     printf("\n");
     printMainList();
-    if (IncludeOpt == 0) PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Visualizar Optativas\n S - Salvar Perfil\n C - Carregar Perfil\n X - Finalizar Programa\n","cyan", 0);
-    else PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Esconder Optativas\n S - Salvar Perfil\n C - Carregar Perfil\n X - Finalizar Programa\n","cyan", 0);
+    if (IncludeOpt == 0) PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Visualizar Optativas\n S - Salvar Perfil\n C - Carregar Perfil\n A - Sobre o Programa\n X - Finalizar Programa\n","cyan", 0);
+    else PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Esconder Optativas\n S - Salvar Perfil\n C - Carregar Perfil\n A - Sobre o Programa\n X - Finalizar Programa\n","cyan", 0);
         
     if (IncludeMessage) PrintStringInStyle("\nAlteracoes feitas com sucesso\n", "green", 0);
     char cmd;
@@ -493,6 +521,8 @@ int EnterMainMenu(){
             break;
         }else if (cmd == 's' || cmd == 'S'){
             if (CmdSaveProfile() == 0) break;
+        }else if (cmd == 'a' || cmd == 'A'){
+            if (CmdAbout() == 0) break;
         }else if (cmd == 'c' || cmd == 'C'){
             int a = CmdLoadProfile();
             if (a == 0) break;
@@ -505,12 +535,12 @@ int EnterMainMenu(){
     }
     if ((cmd == 'O' || cmd == 'o') && IncludeOpt == 0) IncludeOpt = 1;
     else IncludeOpt = 0;
-    system("cls"); //Limpa a tela
+    ClearScreen(); //Limpa a tela
     return 0;
 }
 
 int main(){
-    system("cls"); //Limpa a tela
+    ClearScreen(); //Limpa a tela
     SetTextStyle("def",0); //reseta a fonte para o padrão
     if (LoadDatabase() == 1) return 1; //Chama a função de ler o arquivo bd.txt, se der erro sai da aplicação
     int i = 0;
@@ -519,6 +549,6 @@ int main(){
     while (i == 0){
         i = EnterMainMenu(); //enquanto o menu retornar 0, entraremos no menu novamente
     }
-    PrintStringInStyle("Finalizando Programa...", "yellow" , 0);
+    PrintStringInStyle("Finalizando Programa...\n", "yellow" , 0);
     return 0;
 }
