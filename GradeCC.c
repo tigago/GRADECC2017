@@ -168,7 +168,11 @@ void PrintTableLineForDiscipline(int disciplineIndex){
         }
         if (States[disciplineIndex] == 2){
             strcpy(blockName,"-");
-        }else{
+        }
+        else if (States[disciplineIndex] == 1){
+            strcpy(blockName, "\033[0;34mCursando\033");
+        }
+        else{
             switch (Block[disciplineIndex])
             {
             case 0:
