@@ -151,45 +151,49 @@ int LoadDatabase(){
 }
 
 //Esta funcao imprime as informacoes de uma disciplina de forma conforme à tabela
-void PrintTableLineForDiscipline(int disciplineIndex){
+void PrintTableLineForDiscipline(int disciplineIndex, int includeSemester){
     char stateName[12];
-        char blockName[25];
-        switch (States[disciplineIndex])
+    char blockName[25];
+    switch (States[disciplineIndex])
+    {
+    case 0:
+        strcpy(stateName,"Nao cursada");
+        break;
+    case 1:
+        strcpy(stateName,"Cursando");
+        break;
+    case 2:
+        strcpy(stateName,"Aprovado");
+        break;
+    }
+    if (States[disciplineIndex] == 2){
+        strcpy(blockName,"-");
+    }
+    else if (States[disciplineIndex] == 1){
+        strcpy(blockName, "\033[0;34mCursando\033");
+    }
+    else{
+        switch (Block[disciplineIndex])
         {
         case 0:
-            strcpy(stateName,"Nao cursada");
+            strcpy(blockName,"\033[0;32mLiberada\033[0m");
             break;
         case 1:
-            strcpy(stateName,"Cursando");
+            strcpy(blockName,"Bloqueada");
             break;
         case 2:
-            strcpy(stateName,"Aprovado");
+            strcpy(blockName,"\033[0;33mProx Sem\033[0m");
             break;
         }
-        if (States[disciplineIndex] == 2){
-            strcpy(blockName,"-");
-        }
-        else if (States[disciplineIndex] == 1){
-            strcpy(blockName, "\033[0;34mCursando\033");
-        }
-        else{
-            switch (Block[disciplineIndex])
-            {
-            case 0:
-                strcpy(blockName,"\033[0;32mLiberada\033[0m");
-                break;
-            case 1:
-                strcpy(blockName,"Bloqueada");
-                break;
-            case 2:
-                strcpy(blockName,"\033[0;33mProx Sem\033[0m");
-                break;
-            }
-        }
-        SetTextStyle("def",0);
-        printf ("%-7s %-65s %-3d  %-13s %-s",Disciplinas[disciplineIndex].code, Disciplinas[disciplineIndex].name, Disciplinas[disciplineIndex].hours, stateName, blockName);
-        if (Disciplinas[disciplineIndex].type == 1) printf(" OPT");
-        printf("\n");
+    }
+    SetTextStyle("def",0);
+    if (includeSemester){
+        if (Disciplinas[disciplineIndex].semester > 0) printf("%-4d", Disciplinas[disciplineIndex].semester);
+        else printf("Opt ");
+    }
+    printf ("%-7s %-65s %-3d  %-13s %-s",Disciplinas[disciplineIndex].code, Disciplinas[disciplineIndex].name, Disciplinas[disciplineIndex].hours, stateName, blockName);
+    if (Disciplinas[disciplineIndex].type == 1) printf(" OPT");
+    printf("\n");
 }
 
 //Função que imprime a lista de disciplinas separada por periodos
@@ -209,7 +213,7 @@ int printMainList(){
         for (i = 0; i<Records; i++){
                 if (Disciplinas[i].semester != p) continue;
                 if (Disciplinas[1].type != 0) continue;
-                PrintTableLineForDiscipline(i);
+                PrintTableLineForDiscipline(i, 0);
         }
         SetTextStyle("yellow", 0);
         if (p == 7 || p == 8) printf("O fluxo recomenda 1 optativa neste periodo\n");
@@ -222,7 +226,7 @@ int printMainList(){
     int chOpt = 0;
     for (int i = 0; i< Records; i++){
         if (Disciplinas[i].type != 1) continue;
-        if (IncludeOpt) PrintTableLineForDiscipline(i);
+        if (IncludeOpt) PrintTableLineForDiscipline(i, 0);
         if (States[i] == 2) chOpt += Disciplinas[i].hours;
     }
     SetTextStyle("def", 0);
@@ -339,15 +343,15 @@ int CmdInspectdiscipline(){
     }
     ClearScreen(); //Limpa a tela
     PrintStringInStyle("Detalhes da disciplina:\n", "blue", 1);
-    PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
-    PrintTableLineForDiscipline(found);
+    PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+    PrintTableLineForDiscipline(found, 1);
     if (Disciplinas[found].prerequisite[0] != 0)
     {
         PrintStringInStyle("\nPre-requisitos diretos desta disciplina:\n", "blue", 1);
-        PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+        PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
         for (i = 0; i<4; i++){
             if (Disciplinas[found].prerequisite[i] == 0) continue;
-            PrintTableLineForDiscipline(Disciplinas[found].prerequisite[i] - 1);
+            PrintTableLineForDiscipline(Disciplinas[found].prerequisite[i] - 1, 1);
         }
     }
     int header = 0;
@@ -359,9 +363,9 @@ int CmdInspectdiscipline(){
                 if (header == 0){
                     header = 1;
                     PrintStringInStyle("\nEsta disciplina e pre-requisito direto para:\n", "blue", 1);
-                    PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+                    PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
                 }
-                PrintTableLineForDiscipline(i);
+                PrintTableLineForDiscipline(i, 1);
             }
     }
     int path[100] = {-1,-1};
@@ -394,9 +398,9 @@ int CmdInspectdiscipline(){
                     if (header == 0){
                         header = 1;
                         PrintStringInStyle("\nTodas as disciplinas que voce precisa passar ate chegar a esta:\n", "yellow", 1);
-                        PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+                        PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
                     }
-                    PrintTableLineForDiscipline(num);
+                    PrintTableLineForDiscipline(num, 1);
                 }
             }
         }
@@ -418,9 +422,9 @@ int CmdInspectdiscipline(){
                 if (header == 0){
                     header = 1;
                     PrintStringInStyle("\nReprovacao nesta disciplina atrasa todas essas outras: (nao incluindo optativas)\n", "red", 1);
-                    PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+                    PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
                 }
-                PrintTableLineForDiscipline(i);
+                PrintTableLineForDiscipline(i, 1);
                 //printf("\nDebug: adicionando: %s no index %d\n", Disciplinas[i].name, searchLen - 1);
             }
     }
@@ -449,7 +453,7 @@ int CmdInspectdiscipline(){
                     count++;
                     compromised[lastSearchIndex + count + searchLen - 1] = j;
                     //printf("\nDebug: adicionando: %s no index %d\n", Disciplinas[j].name, lastSearchIndex + count + searchLen - 1);
-                    PrintTableLineForDiscipline(j);
+                    PrintTableLineForDiscipline(j, 1);
                 }
             }
         }
@@ -539,6 +543,26 @@ int CmdLoadProfile(){
     return 0;
 }
 
+int CmdChangeCursandoToAprovado(){
+    PrintStringInStyle("Quer mudar todas as disciplinas que estao como CURSANDO para APROVADO?\n 0 - SIM\n 1 - NAO\n","cyan",0);
+    int r;
+    scanf("%d", &r);
+    if (r == 0){
+        int i;
+        for (i = 0; i < Records; i++){
+            if (States[i] == 1) States[i] = 2;
+        }
+        UpdateBlockSituations();
+        IncludeMessage = 1;
+    }else if (r == 1){
+        PrintStringInStyle("Operacao cancelada pelo usuario.\n", "red", 0);
+        return  1;
+    } else{
+        PrintStringInStyle("0 ou 1 manezao! Operacao Cancelada.\n", "red", 0);
+        return  1;
+    }
+    return 0;
+}
 //Função que da informacoes sobre o projeto
 int CmdAbout(){
     ClearScreen();
@@ -563,8 +587,8 @@ int EnterMainMenu(){
     PrintStringInStyle("Esta e a sua situacao academica no curso CC PPC 2017:\n", "blue" , 1);
     printf("\n");
     printMainList();
-    if (IncludeOpt == 0) PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Visualizar Optativas\n S - Salvar Perfil\n C - Carregar Perfil\n A - Sobre o Programa\n X - Finalizar Programa\n","cyan", 0);
-    else PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Esconder Optativas\n S - Salvar Perfil\n C - Carregar Perfil\n A - Sobre o Programa\n X - Finalizar Programa\n","cyan", 0);
+    if (IncludeOpt == 0) PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Visualizar Optativas\n S - Salvar Perfil\n C - Carregar Perfil\n A - Sobre o Programa\n W - Mudar todos os status de cursando para aprovado\n X - Finalizar Programa\n","cyan", 0);
+    else PrintStringInStyle("\nOpcoes:\n M - Mudar Status de uma disciplina\n P - Mudar status de todas as disciplinas de um periodo\n I - Inspecionar Disciplina\n O - Esconder Optativas\n S - Salvar Perfil\n C - Carregar Perfil\n A - Sobre o Programa\n W - Mudar todos os status de cursando para aprovado\n X - Finalizar Programa\n","cyan", 0);
         
     if (IncludeMessage) PrintStringInStyle("\nAlteracoes feitas com sucesso\n", "green", 0);
     char cmd;
@@ -572,7 +596,7 @@ int EnterMainMenu(){
         printf("Opcao: ");
         scanf(" %c", &cmd);
         if (cmd == 'M' || cmd == 'm'){
-            if (CmdChangeSingleDiscipline() == 0) break;;
+            if (CmdChangeSingleDiscipline() == 0) break;
         } else if (cmd == 'p' || cmd == 'P'){
             if (CmdChangeWholeSemester() == 0) break;
         }else if (cmd == 'i' || cmd == 'I'){
@@ -588,6 +612,8 @@ int EnterMainMenu(){
             int a = CmdLoadProfile();
             if (a == 0) break;
             else if (a == 2) return 1;
+        }else if (cmd == 'w' || cmd == 'W'){
+            if (CmdChangeCursandoToAprovado() == 0) break;
         }else if (cmd == 'X' || cmd == 'x'){
             return 1;
         }else{
