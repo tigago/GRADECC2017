@@ -4,6 +4,7 @@ Também dá pra inspecionar uma disciplina pra ver quais são os pré-requisitos
 
 No Linux:
   Abra no terminal e compile usando gcc:
+  
   gcc GradeCC.c -o GradeCC
   
   .\GradeCC
