@@ -11,3 +11,5 @@ No Linux:
 
 No Windows:
   Basta executar o GradeCC.exe
+
+![Screenshot](screenshot.png)
