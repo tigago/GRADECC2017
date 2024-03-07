@@ -28,7 +28,7 @@ Disciplina Disciplinas[100];//Variável array global do tipo Disciplina (o struc
 1- Cursando
 2- Aprovado*/
 int States[100] = {0};
-
+int Priority[100];
 /*Esta array é utilizada para saber se uma disciplina pode ou não ser cursada
 0- Liberada
 1- Falta Pre Requisitos
@@ -99,6 +99,56 @@ void PrintStringInStyle(char str[], char color[], int style){
     SetTextStyle("def", 0);
 }
 
+int CountTotalDependencies(int disciplineNumber){
+    int compromised[100] = {-1};
+    int comproCount = 0;
+    int searchLen = 0;
+    int i;
+    for (i = 0; i<Records; i++){
+        if (Disciplinas[i].type == 1) continue;
+        if(disciplineNumber == Disciplinas[i].prerequisite[0] - 1
+            || disciplineNumber == Disciplinas[i].prerequisite[1] - 1
+            || disciplineNumber == Disciplinas[i].prerequisite[2] - 1
+            || disciplineNumber == Disciplinas[i].prerequisite[3] - 1){
+                compromised[searchLen] = i;
+                comproCount++;
+                searchLen++;
+            }
+    }
+    int lastSearchIndex = 0;
+    while (searchLen > 0)
+    {
+        int count = 0;
+        //printf("\nDebug: checando de %d ate %d:\n", lastSearchIndex, lastSearchIndex + searchLen - 1);
+        for (i = lastSearchIndex; i < lastSearchIndex + searchLen; i++){
+            int j;
+            for (j = 0; j <Records; j++){
+                if (Disciplinas[j].type == 1) continue;
+                if(compromised[i] == Disciplinas[j].prerequisite[0] - 1
+                || compromised[i] == Disciplinas[j].prerequisite[1] - 1
+                || compromised[i] == Disciplinas[j].prerequisite[2] - 1
+                || compromised[i] == Disciplinas[j].prerequisite[3] - 1){
+                    int k;
+                    int check = 0; //checar se o comprometido ja foi adicionado ao caminho
+                    for (k = 0; k < lastSearchIndex + count + searchLen; k ++){
+                        if (compromised[k] == j) {
+                            check = 1;
+                            break;
+                        }
+                    }
+                    if (check) continue;
+                    count++;
+                    compromised[lastSearchIndex + count + searchLen - 1] = j;
+                    comproCount++;
+                }
+            }
+        }
+        lastSearchIndex += searchLen;
+        searchLen = count;
+    }
+    return comproCount;
+}
+
 /*Esta função tenta ler o arquivo csv bd.txt, que tem que estar salvo na mesma pasta que o código está, e armazena os dados das disciplinas na variável global Disciplinas.
 Caso haja qualquer tipo de erro será retornado 1, caso tudo tenha ocorrido bem será retornado 0.*/
 int LoadDatabase(){
@@ -147,8 +197,13 @@ int LoadDatabase(){
     fclose(file); //Fecha o arquivo pois não precisaremos mais dele
     SetTextStyle("green",0);
     printf("Leitura de arquivo bem sucedida: %d linhas.\n", Records);
+    int i;
+    for (i = 0; i < Records; i++){
+        Priority[i] = CountTotalDependencies(i);
+    }
     return 0;   
 }
+
 
 //Esta funcao imprime as informacoes de uma disciplina de forma conforme à tabela
 void PrintTableLineForDiscipline(int disciplineIndex, int includeSemester){
@@ -191,7 +246,7 @@ void PrintTableLineForDiscipline(int disciplineIndex, int includeSemester){
         if (Disciplinas[disciplineIndex].semester > 0) printf("%-4d", Disciplinas[disciplineIndex].semester);
         else printf("Opt ");
     }
-    printf ("%-7s %-65s %-3d  %-13s %-s",Disciplinas[disciplineIndex].code, Disciplinas[disciplineIndex].name, Disciplinas[disciplineIndex].hours, stateName, blockName);
+    printf ("%-7s %-65s %-3d  %-13s %-11d %-s",Disciplinas[disciplineIndex].code, Disciplinas[disciplineIndex].name, Disciplinas[disciplineIndex].hours, stateName, Priority[disciplineIndex], blockName);
     if (Disciplinas[disciplineIndex].type == 1) printf(" OPT");
     printf("\n");
 }
@@ -205,7 +260,7 @@ int printMainList(){
         SetTextStyle("blue",1);
         printf("%d PERIODO:\n",p);
         SetTextStyle("def",1);
-        printf("Cod     Nome                                                              CH   Status        Situacao\n");
+        printf("Cod     Nome                                                              CH   Status        Prioridade  Situacao\n");
         char stateName[12];
         char blockName[25];
         SetTextStyle("def",0);
@@ -222,7 +277,7 @@ int printMainList(){
     }
     SetTextStyle("blue",1);
     printf("OPTATIVAS:\n");
-    if (IncludeOpt)  PrintStringInStyle("Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+    if (IncludeOpt)  PrintStringInStyle("Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
     int chOpt = 0;
     for (int i = 0; i< Records; i++){
         if (Disciplinas[i].type != 1) continue;
@@ -343,12 +398,12 @@ int CmdInspectdiscipline(){
     }
     ClearScreen(); //Limpa a tela
     PrintStringInStyle("Detalhes da disciplina:\n", "blue", 1);
-    PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+    PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
     PrintTableLineForDiscipline(found, 1);
     if (Disciplinas[found].prerequisite[0] != 0)
     {
         PrintStringInStyle("\nPre-requisitos diretos desta disciplina:\n", "blue", 1);
-        PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+        PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
         for (i = 0; i<4; i++){
             if (Disciplinas[found].prerequisite[i] == 0) continue;
             PrintTableLineForDiscipline(Disciplinas[found].prerequisite[i] - 1, 1);
@@ -363,7 +418,7 @@ int CmdInspectdiscipline(){
                 if (header == 0){
                     header = 1;
                     PrintStringInStyle("\nEsta disciplina e pre-requisito direto para:\n", "blue", 1);
-                    PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+                    PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
                 }
                 PrintTableLineForDiscipline(i, 1);
             }
@@ -398,7 +453,7 @@ int CmdInspectdiscipline(){
                     if (header == 0){
                         header = 1;
                         PrintStringInStyle("\nTodas as disciplinas que voce precisa passar ate chegar a esta:\n", "yellow", 1);
-                        PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+                        PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
                     }
                     PrintTableLineForDiscipline(num, 1);
                 }
@@ -422,7 +477,7 @@ int CmdInspectdiscipline(){
                 if (header == 0){
                     header = 1;
                     PrintStringInStyle("\nReprovacao nesta disciplina atrasa todas essas outras: (nao incluindo optativas)\n", "red", 1);
-                    PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Situacao\n", "def", 1);
+                    PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
                 }
                 PrintTableLineForDiscipline(i, 1);
                 //printf("\nDebug: adicionando: %s no index %d\n", Disciplinas[i].name, searchLen - 1);
@@ -471,6 +526,7 @@ int CmdInspectdiscipline(){
     IncludeMessage = 0;
     return 0;
 }
+
 
 
 
