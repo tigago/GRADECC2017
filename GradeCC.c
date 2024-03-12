@@ -222,7 +222,7 @@ void PrintTableLineForDiscipline(int disciplineIndex, int includeSemester){
         break;
     }
     if (States[disciplineIndex] == 2){
-        strcpy(blockName,"-");
+        strcpy(blockName,"\033[0;32mAprovado\033[0m");
     }
     else if (States[disciplineIndex] == 1){
         strcpy(blockName, "\033[0;34mCursando\033");
@@ -231,10 +231,10 @@ void PrintTableLineForDiscipline(int disciplineIndex, int includeSemester){
         switch (Block[disciplineIndex])
         {
         case 0:
-            strcpy(blockName,"\033[0;32mLiberada\033[0m");
+            strcpy(blockName,"Liberada <-");
             break;
         case 1:
-            strcpy(blockName,"Bloqueada");
+            strcpy(blockName,"\033[0;31mBloqueada\033");
             break;
         case 2:
             strcpy(blockName,"\033[0;33mProx Sem\033[0m");
@@ -247,7 +247,7 @@ void PrintTableLineForDiscipline(int disciplineIndex, int includeSemester){
         else printf("Opt ");
     }
     printf ("%-7s %-65s %-3d  %-13s %-11d %-s",Disciplinas[disciplineIndex].code, Disciplinas[disciplineIndex].name, Disciplinas[disciplineIndex].hours, stateName, Priority[disciplineIndex], blockName);
-    if (Disciplinas[disciplineIndex].type == 1) printf(" OPT");
+    //if (Disciplinas[disciplineIndex].type == 1) printf(" OPT");
     printf("\n");
 }
 
