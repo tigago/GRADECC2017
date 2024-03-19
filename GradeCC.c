@@ -378,153 +378,167 @@ int CmdChangeWholeSemester(){
 
 int CmdInspectdiscipline(){
     char code[8];
-    PrintStringInStyle("Codigo da disciplina a ser isnpecionada: (X para cancelar)\n", "cyan", 0);
-    scanf("%s", code);
-    if (stricmp(code,"X")){
-        PrintStringInStyle("Operacao cancelada pelo usuario.\n", "yellow", 0);
-        return 1;
-    }
-    int i;
     int found = -1;
-    for (i = 0; i<Records; i++){
-        if (stricmp(code,Disciplinas[i].code)){
-            found = i;
-            break;
+    while (found == -1){
+        PrintStringInStyle("Codigo da disciplina a ser inspecionada: (X para cancelar)\n", "cyan", 0);
+        scanf("%s", code);
+        if (stricmp(code,"X")){
+            PrintStringInStyle("Operacao cancelada pelo usuario!\n", "red" , 0);
+            return 1;
         }
-    }
-    if (found == -1){
-        PrintStringInStyle("Codigo invalido, operacao cancelada.\n","red",0);
-        return 1;
-    }
-    ClearScreen(); //Limpa a tela
-    PrintStringInStyle("Detalhes da disciplina:\n", "blue", 1);
-    PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
-    PrintTableLineForDiscipline(found, 1);
-    if (Disciplinas[found].prerequisite[0] != 0)
-    {
-        PrintStringInStyle("\nPre-requisitos diretos desta disciplina:\n", "blue", 1);
-        PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
-        for (i = 0; i<4; i++){
-            if (Disciplinas[found].prerequisite[i] == 0) continue;
-            PrintTableLineForDiscipline(Disciplinas[found].prerequisite[i] - 1, 1);
-        }
-    }
-    int header = 0;
-    for (i = 0; i<Records; i++){
-        if(found == Disciplinas[i].prerequisite[0] - 1
-            || found == Disciplinas[i].prerequisite[1] - 1
-            || found == Disciplinas[i].prerequisite[2] - 1
-            || found == Disciplinas[i].prerequisite[3] - 1){
-                if (header == 0){
-                    header = 1;
-                    PrintStringInStyle("\nEsta disciplina e pre-requisito direto para:\n", "blue", 1);
-                    PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
-                }
-                PrintTableLineForDiscipline(i, 1);
+        int i;
+        for (i = 0; i<Records; i++){
+            if (stricmp(code,Disciplinas[i].code)){
+                found = i;
+                break;
             }
+        }
+        if (found == -1){
+            PrintStringInStyle("Codigo de disciplina nao encontrado\n","red",0);
+        }
     }
-    int path[100] = {-1,-1};
-    path[0] = found;
-    int searchLen = 1;
-    int lastSearchIndex = 0;
-    header = 0;
-    while(searchLen > 0){
-        int count = 0;
-        //printf("\nDebug: checando de %d ate %d:\n", lastSearchIndex, lastSearchIndex + searchLen - 1);
-        for (i = lastSearchIndex; i < lastSearchIndex + searchLen; i++){
-            int j;
-            //printf("\nDebug: procurando em: %s\n", Disciplinas[path[i]].name);
-            for (j = 0; j < 4; j++){
-                if (Disciplinas[path[i]].prerequisite[j] != 0){
-                    int num = Disciplinas[path[i]].prerequisite[j] - 1;
-                    int k;
-                    int check = 0; //checar se o prerequisito ja foi adicionado ao caminho
-                    for (k = 0; k < lastSearchIndex + count; k ++){
-                        if (path[k] == num) {
-                            check = 1;
-                            //printf("\nDebug: achou repetido: %s\n", Disciplinas[num].name);
-                            break;
-                        }
-                    }
-                    if (check) continue; //se pre requisito ja esta no caminho va para o proximo j
-                    count++;
-                    path[lastSearchIndex + count + searchLen - 1] = num;
-                    //printf("\nDebug: adicionando: %s no index %d\n", Disciplinas[num].name, lastSearchIndex + count + searchLen - 1);
+    while (1){
+        ClearScreen(); //Limpa a tela
+        PrintStringInStyle("Detalhes da disciplina:\n", "blue", 1);
+        PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
+        PrintTableLineForDiscipline(found, 1);
+        int i;
+        if (Disciplinas[found].prerequisite[0] != 0)
+        {
+            PrintStringInStyle("\nPre-requisitos diretos desta disciplina:\n", "blue", 1);
+            PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
+            for (i = 0; i<4; i++){
+                if (Disciplinas[found].prerequisite[i] == 0) continue;
+                PrintTableLineForDiscipline(Disciplinas[found].prerequisite[i] - 1, 1);
+            }
+        }
+        int header = 0;
+        for (i = 0; i<Records; i++){
+            if(found == Disciplinas[i].prerequisite[0] - 1
+                || found == Disciplinas[i].prerequisite[1] - 1
+                || found == Disciplinas[i].prerequisite[2] - 1
+                || found == Disciplinas[i].prerequisite[3] - 1){
                     if (header == 0){
                         header = 1;
-                        PrintStringInStyle("\nTodas as disciplinas que voce precisa passar ate chegar a esta:\n", "yellow", 1);
+                        PrintStringInStyle("\nEsta disciplina e pre-requisito direto para:\n", "blue", 1);
                         PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
                     }
-                    PrintTableLineForDiscipline(num, 1);
+                    PrintTableLineForDiscipline(i, 1);
                 }
-            }
         }
-        lastSearchIndex += searchLen;
-        searchLen = count;
-    }
-
-    int compromised[100] = {-1};
-    searchLen = 0;
-    header = 0;
-    for (i = 0; i<Records; i++){
-        if (Disciplinas[i].type == 1) continue;
-        if(found == Disciplinas[i].prerequisite[0] - 1
-            || found == Disciplinas[i].prerequisite[1] - 1
-            || found == Disciplinas[i].prerequisite[2] - 1
-            || found == Disciplinas[i].prerequisite[3] - 1){
-                compromised[searchLen] = i;
-                searchLen++;
-                if (header == 0){
-                    header = 1;
-                    PrintStringInStyle("\nReprovacao nesta disciplina atrasa todas essas outras: (nao incluindo optativas)\n", "red", 1);
-                    PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
-                }
-                PrintTableLineForDiscipline(i, 1);
-                //printf("\nDebug: adicionando: %s no index %d\n", Disciplinas[i].name, searchLen - 1);
-            }
-    }
-    lastSearchIndex = 0;
-    while (searchLen > 0)
-    {
-        int count = 0;
-        //printf("\nDebug: checando de %d ate %d:\n", lastSearchIndex, lastSearchIndex + searchLen - 1);
-        for (i = lastSearchIndex; i < lastSearchIndex + searchLen; i++){
-            int j;
-            for (j = 0; j <Records; j++){
-                if (Disciplinas[j].type == 1) continue;
-                if(compromised[i] == Disciplinas[j].prerequisite[0] - 1
-                || compromised[i] == Disciplinas[j].prerequisite[1] - 1
-                || compromised[i] == Disciplinas[j].prerequisite[2] - 1
-                || compromised[i] == Disciplinas[j].prerequisite[3] - 1){
-                    int k;
-                    int check = 0; //checar se o comprometido ja foi adicionado ao caminho
-                    for (k = 0; k < lastSearchIndex + count + searchLen; k ++){
-                        if (compromised[k] == j) {
-                            check = 1;
-                            break;
+        int path[100] = {-1,-1};
+        path[0] = found;
+        int searchLen = 1;
+        int lastSearchIndex = 0;
+        header = 0;
+        while(searchLen > 0){
+            int count = 0;
+            //printf("\nDebug: checando de %d ate %d:\n", lastSearchIndex, lastSearchIndex + searchLen - 1);
+            for (i = lastSearchIndex; i < lastSearchIndex + searchLen; i++){
+                int j;
+                //printf("\nDebug: procurando em: %s\n", Disciplinas[path[i]].name);
+                for (j = 0; j < 4; j++){
+                    if (Disciplinas[path[i]].prerequisite[j] != 0){
+                        int num = Disciplinas[path[i]].prerequisite[j] - 1;
+                        int k;
+                        int check = 0; //checar se o prerequisito ja foi adicionado ao caminho
+                        for (k = 0; k < lastSearchIndex + count; k ++){
+                            if (path[k] == num) {
+                                check = 1;
+                                //printf("\nDebug: achou repetido: %s\n", Disciplinas[num].name);
+                                break;
+                            }
                         }
+                        if (check) continue; //se pre requisito ja esta no caminho va para o proximo j
+                        count++;
+                        path[lastSearchIndex + count + searchLen - 1] = num;
+                        //printf("\nDebug: adicionando: %s no index %d\n", Disciplinas[num].name, lastSearchIndex + count + searchLen - 1);
+                        if (header == 0){
+                            header = 1;
+                            PrintStringInStyle("\nTodas as disciplinas que voce precisa passar ate chegar a esta:\n", "yellow", 1);
+                            PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
+                        }
+                        PrintTableLineForDiscipline(num, 1);
                     }
-                    if (check) continue;
-                    count++;
-                    compromised[lastSearchIndex + count + searchLen - 1] = j;
-                    //printf("\nDebug: adicionando: %s no index %d\n", Disciplinas[j].name, lastSearchIndex + count + searchLen - 1);
-                    PrintTableLineForDiscipline(j, 1);
                 }
             }
+            lastSearchIndex += searchLen;
+            searchLen = count;
         }
-        lastSearchIndex += searchLen;
-        searchLen = count;
+
+        int compromised[100] = {-1};
+        searchLen = 0;
+        header = 0;
+        for (i = 0; i<Records; i++){
+            if (Disciplinas[i].type == 1) continue;
+            if(found == Disciplinas[i].prerequisite[0] - 1
+                || found == Disciplinas[i].prerequisite[1] - 1
+                || found == Disciplinas[i].prerequisite[2] - 1
+                || found == Disciplinas[i].prerequisite[3] - 1){
+                    compromised[searchLen] = i;
+                    searchLen++;
+                    if (header == 0){
+                        header = 1;
+                        PrintStringInStyle("\nReprovacao nesta disciplina atrasa todas essas outras: (nao incluindo optativas)\n", "red", 1);
+                        PrintStringInStyle("Sem Cod     Nome                                                              CH   Status        Prioridade  Situacao\n", "def", 1);
+                    }
+                    PrintTableLineForDiscipline(i, 1);
+                    //printf("\nDebug: adicionando: %s no index %d\n", Disciplinas[i].name, searchLen - 1);
+                }
+        }
+        lastSearchIndex = 0;
+        while (searchLen > 0)
+        {
+            int count = 0;
+            //printf("\nDebug: checando de %d ate %d:\n", lastSearchIndex, lastSearchIndex + searchLen - 1);
+            for (i = lastSearchIndex; i < lastSearchIndex + searchLen; i++){
+                int j;
+                for (j = 0; j <Records; j++){
+                    if (Disciplinas[j].type == 1) continue;
+                    if(compromised[i] == Disciplinas[j].prerequisite[0] - 1
+                    || compromised[i] == Disciplinas[j].prerequisite[1] - 1
+                    || compromised[i] == Disciplinas[j].prerequisite[2] - 1
+                    || compromised[i] == Disciplinas[j].prerequisite[3] - 1){
+                        int k;
+                        int check = 0; //checar se o comprometido ja foi adicionado ao caminho
+                        for (k = 0; k < lastSearchIndex + count + searchLen; k ++){
+                            if (compromised[k] == j) {
+                                check = 1;
+                                break;
+                            }
+                        }
+                        if (check) continue;
+                        count++;
+                        compromised[lastSearchIndex + count + searchLen - 1] = j;
+                        //printf("\nDebug: adicionando: %s no index %d\n", Disciplinas[j].name, lastSearchIndex + count + searchLen - 1);
+                        PrintTableLineForDiscipline(j, 1);
+                    }
+                }
+            }
+            lastSearchIndex += searchLen;
+            searchLen = count;
+        }
+        found = -1;
+        while (found == -1){
+            PrintStringInStyle("\nCodigo de nova disciplina a ser inspecionada: (X para voltar ao menu)\n", "cyan", 0);
+            scanf("%s", code);
+            if (stricmp(code,"X")){
+                IncludeMessage = 0;
+                return 0;
+            }
+            int i;
+            found = -1;
+            for (i = 0; i<Records; i++){
+                if (stricmp(code,Disciplinas[i].code)){
+                    found = i;
+                    break;
+                }
+            }
+            if (found == -1){
+                PrintStringInStyle("Codigo de disciplina nao encontrado\n","red",0);
+            }
+        }
     }
-    
-
-
-
-
-    char opt;
-    PrintStringInStyle("\nEntre qualquer valor para voltar ao menu: ", "cyan" , 0);
-    scanf(" %c", &opt);
-    IncludeMessage = 0;
-    return 0;
 }
 
 
@@ -623,13 +637,13 @@ int CmdChangeCursandoToAprovado(){
 int CmdAbout(){
     ClearScreen();
     PrintStringInStyle("Auxiliar de fluxo Ciencia da Computacao PPC 2017 v1.0:\n","blue",1);
-    printf("Este programa tem como objetivo auxiliar alunos que estão com a grade baguncada, seja por motivos de reprovacao ou aproveitamento de disciplina.\n");
+    printf("Este programa tem como objetivo auxiliar alunos que estao com a grade baguncada, seja por motivos de reprovacao ou aproveitamento de disciplina.\n");
     printf("Quando o aluno altera o status das disciplinas de acordo com a sua situacao, o programa ressalta quais disciplinas ja estao liberadas e quais disciplinas estarao disponiveis no proximo semestre caso haja aprovacao em todas as diciplinas que estao sendo cursadas.\n");
+    printf("A prioridade da disciplina e baseada no numero de outras disciplinas que sao dependentes dela direta ou indiretamente.\n");
     printf("O usuario pode salvar as informacoes dos status das disciplinas em um perfil para utilizar novamente quando o programa for aberto uma outra vez.\n");
     printf("As alteracoes nao sao salvas automaticamente, possibilitando a simulacao de varios cenarios pelo usuario sem comprometer os seus dados salvos\n");
     PrintStringInStyle("\nProjeto desenvolvido para a aula de IP 2023/2 ministrada pelo professor Hebert.\n","yellow",1);
-    PrintStringInStyle("GRUPO 7:\n", "def", 1);
-    printf("Hawryson Do Nascimento Mesquita\nIgor Gabriel Mario de Oliveira Martins\nLorena Ganzer\nThiago Nascimento Nogueira\n");
+    printf("Thiago Nascimento Nogueira\n");
     char opt;
     PrintStringInStyle("\nEntre qualquer valor para voltar ao menu: ", "cyan" , 0);
     scanf(" %c", &opt);
